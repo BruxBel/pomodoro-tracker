@@ -1,0 +1,58 @@
+pomodoro_tracker/
+├── .env                    # Конфигурация окружения
+├── .gitignore
+├── alembic/                # Миграции
+│   ├── versions/
+│   └── env.py
+├── requirements.txt        # Зависимости
+├── pyproject.toml          # Современный конфиг (опционально)
+│
+├── src/                    # Основной код
+│   ├── main.py             # Точка входа FastAPI
+│   ├── config.py           # Настройки приложения
+│   ├── db/                 # Работа с БД
+│   │   ├── base.py         # Базовый класс моделей
+│   │   ├── models/         # SQLAlchemy модели
+│   │   │   ├── task.py
+│   │   │   ├── user.py
+│   │   │   ├── session.py
+│   │   │   └── category.py
+│   │   └── repositories/   # Репозитории
+│   │       ├── task.py
+│   │       ├── user.py
+│   │       └── session.py
+│   │
+│   ├── schemas/            # Pydantic схемы
+│   │   ├── task.py
+│   │   ├── user.py
+│   │   ├── session.py
+│   │   └── auth.py
+│   │
+│   ├── services/           # Бизнес-логика
+│   │   ├── task.py
+│   │   ├── auth.py
+│   │   ├── session.py
+│   │   └── stats.py
+│   │
+│   ├── api/                # Роутеры FastAPI
+│   │   ├── v1/             # Версия API
+│   │   │   ├── tasks.py
+│   │   │   ├── auth.py
+│   │   │   ├── sessions.py
+│   │   │   ├── stats.py
+│   │   │   └── users.py
+│   │   └── dependencies.py # Общие зависимости (авторизация и т.д.)
+│   │
+│   ├── auth/               # Аутентификация
+│   │   ├── jwt.py
+│   │   ├── oauth.py        # OAuth (Google/Yandex)
+│   │   └── security.py
+│   │
+│   └── utils/              # Вспомогательные модули
+│       ├── time_utils.py   # Работа с временем
+│       └── notifications.py
+│
+└── tests/                  # Тесты
+    ├── unit/
+    ├── integration/
+    └── conftest.py
