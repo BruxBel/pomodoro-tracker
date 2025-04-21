@@ -6,6 +6,25 @@ from sqlalchemy import pool
 from alembic import context
 
 from database.models import Base
+from os import environ
+from dotenv import load_dotenv
+
+load_dotenv()
+
+POSTGRES_USER = environ.get("POSTGRES_USER")
+POSTGRES_PASSWORD = environ.get("POSTGRES_PASSWORD")
+POSTGRES_DB = environ.get("POSTGRES_DB")
+POSTGRES_HOST = environ.get("POSTGRES_HOST")
+POSTGRES_PORT = environ.get("POSTGRES_PORT")
+
+SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg2://"\
+                          f"{POSTGRES_USER}:"\
+                          f"{POSTGRES_PASSWORD}@"\
+                          f"{POSTGRES_HOST}:"\
+                          f"{POSTGRES_PORT}/"\
+                          f"{POSTGRES_DB}"
+print(SQLALCHEMY_DATABASE_URL)
+context.config.set_main_option("sqlalchemy.url", SQLALCHEMY_DATABASE_URL)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -20,7 +39,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-print("Таблицы в метаданных SQLAlchemy:", list(Base.metadata.tables.keys()))
+print("Metadata SQLAlchemy:", list(Base.metadata.tables.keys()))
 target_metadata = Base.metadata
 
 

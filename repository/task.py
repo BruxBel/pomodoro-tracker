@@ -1,37 +1,65 @@
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, update, Sequence
 
-from database import Task, get_db_session
-from typing import Sequence
+from database import TaskModel
+from schemas import TaskSchema, TaskCreateSchema
 
 
 class TaskRepository:
     def __init__(self, db_session: sessionmaker):
         self.db_session = db_session
 
-    def get_task(self, task_id: int) -> Task | None:
+    def get_task(self, task_id: int) -> TaskSchema | None:
         with self.db_session() as session:
-            task: Task = session.execute(
-                select(Task).where(Task.id == task_id)).scalar()
-        return task
+            task_model = session.execute(
+                select(TaskModel).where(TaskModel.id == task_id)
+            ).scalar()
+            return TaskSchema.model_validate(
+                task_model) if task_model else None
 
-    def get_tasks(self) -> Sequence[Task]:
+    def get_tasks(self) -> Sequence[TaskSchema]:
         with self.db_session() as session:
-            tasks: Sequence[Task] = session.execute(select(Task)).scalars().all()
-        return tasks
+            task_models = session.execute(
+                select(TaskModel)
+            ).scalars().all()
 
-    def create_task(self, task: Task) -> None:
+            return [TaskSchema.model_validate(task) for task in task_models]
+
+    def create_task(self, task: TaskCreateSchema) -> TaskSchema:
+        task_model = TaskModel(
+            name=task.name,
+            pomodoro_count=task.pomodoro_count,
+            category_id=task.category_id
+        )
         with self.db_session() as session:
-            session.add(task)
+            session.add(task_model)
             session.commit()
+            session.refresh(task_model)
+            return TaskSchema.model_validate(task_model)
 
-    def delete_task(self, task_id: int) -> None:
-        query = delete(Task).where(Task.id == task_id)
+    def update_task(self, task_id: int, name: str) -> TaskSchema:
         with self.db_session() as session:
-            session.execute(query)
+            # Обновляем задачу и получаем обновленную запись
+            updated_task: TaskModel | None = session.execute(
+                update(TaskModel)
+                .where(TaskModel.id == task_id)
+                .values(name=name)
+                .returning(TaskModel)  # Возвращаем всю модель, а не только id
+            ).scalar_one_or_none()
+
+            if updated_task is None:
+                raise ValueError(f"Task with id {task_id} not found")
+
+            session.commit()  # Явный коммит для гарантии сохранения изменений
+            return TaskSchema.model_validate(updated_task)
+
+    def delete_task(self, task_id: int) -> bool:
+        with self.db_session() as session:
+            result = session.execute(
+                delete(TaskModel)
+                .where(TaskModel.id == task_id)
+                .returning(TaskModel.id)
+            )
+            deleted_id = result.scalar_one_or_none()
             session.commit()
-
-
-def get_task_repository() -> TaskRepository:
-    db_session = get_db_session()
-    return TaskRepository(db_session)
+            return deleted_id is not None
