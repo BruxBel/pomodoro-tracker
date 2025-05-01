@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 
 from repository import TaskRepository
+from service import TaskService
 from schemas import TaskSchema, TaskCreateSchema
-from dependencies import get_task_repository
+from dependencies import get_task_repository, get_task_service
 from typing import Annotated
 
 
@@ -25,10 +26,9 @@ async def get_task(
 
 @router.get(path="/", response_model=list[TaskSchema])
 async def get_tasks(
-    repo: Annotated[TaskRepository, Depends(get_task_repository)]
+    task_service: Annotated[TaskService, Depends(get_task_service)]
 ):
-    tasks = repo.get_tasks()
-    return tasks
+    return task_service.get_tasks()
 
 
 @router.post(path="/", response_model=TaskSchema)

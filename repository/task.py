@@ -1,7 +1,7 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import select, delete, update, Sequence
 
-from database import TaskModel
+from db import TaskModel
 from schemas import TaskSchema, TaskCreateSchema
 
 
@@ -17,7 +17,7 @@ class TaskRepository:
             return TaskSchema.model_validate(
                 task_model) if task_model else None
 
-    def get_tasks(self) -> Sequence[TaskSchema]:
+    def get_tasks(self) -> list[TaskSchema]:
         with self.db_session() as session:
             task_models = session.execute(
                 select(TaskModel)

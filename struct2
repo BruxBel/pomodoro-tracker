@@ -1,0 +1,19 @@
+pomodoro_tracker/
+├── src/
+│   ├── db/                  # Всё, что связано с постоянным хранением данных
+│   │   ├── repositories/    # Репозитории (работа с БД)
+│   │   │   ├── task.py      # TaskRepository
+│   │   │   ├── user.py      # UserRepository
+│   │   │   └── session.py
+│   │   └── models/          # SQLAlchemy модели
+│   │
+│   ├── cache/               # Всё для кеширования (Redis)
+│   │   ├── repositories/    # Кеш-репозитории*
+│   │   │   ├── task.py      # TaskCacheRepository
+│   │   │   └── session.py
+│   │   ├── redis.py         # Инициализация клиента Redis
+│   │   └── keys.py          # Шаблоны ключей
+│   │
+│   └── services/            # Бизнес-логика
+│       ├── task.py          # TaskService (использует оба репозитория)
+│       └── ...

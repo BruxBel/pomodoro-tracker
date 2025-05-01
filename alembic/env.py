@@ -5,25 +5,12 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from database.models import Base
-from os import environ
-from dotenv import load_dotenv
+from db.models import Base
+from config import settings
 
-load_dotenv()
-
-POSTGRES_USER = environ.get("POSTGRES_USER")
-POSTGRES_PASSWORD = environ.get("POSTGRES_PASSWORD")
-POSTGRES_DB = environ.get("POSTGRES_DB")
-POSTGRES_HOST = environ.get("POSTGRES_HOST")
-POSTGRES_PORT = environ.get("POSTGRES_PORT")
-
-SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg2://"\
-                          f"{POSTGRES_USER}:"\
-                          f"{POSTGRES_PASSWORD}@"\
-                          f"{POSTGRES_HOST}:"\
-                          f"{POSTGRES_PORT}/"\
-                          f"{POSTGRES_DB}"
+SQLALCHEMY_DATABASE_URL = settings.db_url_psycopg2
 print(SQLALCHEMY_DATABASE_URL)
+
 context.config.set_main_option("sqlalchemy.url", SQLALCHEMY_DATABASE_URL)
 
 # this is the Alembic Config object, which provides
