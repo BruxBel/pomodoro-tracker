@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from config import settings
 
 
@@ -14,6 +14,6 @@ SessionLocal = sessionmaker(
 )
 
 
-def get_db_session() -> sessionmaker:
+def get_db_session() -> Session:
     """Генератор сессий для Dependency Injection"""
-    return SessionLocal
+    return SessionLocal()

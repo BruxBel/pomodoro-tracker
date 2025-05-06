@@ -14,7 +14,7 @@ class Base(DeclarativeBase):
         return self.__name__.lower()
 
 
-class Task(Base):
+class TaskModel(Base):
     __tablename__ = "Tasks"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -23,8 +23,17 @@ class Task(Base):
     category_id: Mapped[int]
 
 
-class Category(Base):
+class CategoryModel(Base):
     __tablename__ = "Categories"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str]
+
+
+class UserModel(Base):
+    __tablename__ = "Users"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(nullable=False)
+    password: Mapped[str] = mapped_column(nullable=False)
+    access_token: Mapped[str] = mapped_column(nullable=False)

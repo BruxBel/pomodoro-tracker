@@ -1,16 +1,16 @@
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import select, delete, update, Sequence
+from sqlalchemy.orm import Session
+from sqlalchemy import select, delete, update
 
 from db import TaskModel
 from schemas import TaskSchema, TaskCreateSchema
 
 
 class TaskRepository:
-    def __init__(self, db_session: sessionmaker):
+    def __init__(self, db_session: Session):
         self.db_session = db_session
 
     def get_task(self, task_id: int) -> TaskSchema | None:
-        with self.db_session() as session:
+        with self.db_session as session:
             task_model = session.execute(
                 select(TaskModel).where(TaskModel.id == task_id)
             ).scalar()
@@ -18,7 +18,7 @@ class TaskRepository:
                 task_model) if task_model else None
 
     def get_tasks(self) -> list[TaskSchema]:
-        with self.db_session() as session:
+        with self.db_session as session:
             task_models = session.execute(
                 select(TaskModel)
             ).scalars().all()
@@ -31,14 +31,14 @@ class TaskRepository:
             pomodoro_count=task.pomodoro_count,
             category_id=task.category_id
         )
-        with self.db_session() as session:
+        with self.db_session as session:
             session.add(task_model)
             session.commit()
             session.refresh(task_model)
             return TaskSchema.model_validate(task_model)
 
     def update_task(self, task_id: int, name: str) -> TaskSchema:
-        with self.db_session() as session:
+        with self.db_session as session:
             # Обновляем задачу и получаем обновленную запись
             updated_task: TaskModel | None = session.execute(
                 update(TaskModel)
@@ -54,7 +54,7 @@ class TaskRepository:
             return TaskSchema.model_validate(updated_task)
 
     def delete_task(self, task_id: int) -> bool:
-        with self.db_session() as session:
+        with self.db_session as session:
             result = session.execute(
                 delete(TaskModel)
                 .where(TaskModel.id == task_id)
