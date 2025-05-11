@@ -2,7 +2,7 @@ from pydantic import BaseModel, model_validator
 
 
 # Схема для создания задачи (без id)
-class TaskCreate(BaseModel):
+class TaskCreateSchema(BaseModel):
     name: str | None = None
     pomodoro_count: int | None = None
     category_id: int
@@ -15,11 +15,12 @@ class TaskCreate(BaseModel):
 
 
 # Схема для возврата задачи (с id)
-class Task(BaseModel):
+class TaskSchema(BaseModel):
     id: int
     name: str | None = None
     pomodoro_count: int | None = None
     category_id: int
+    user_id: int
 
     class Config:
         from_attributes = True
