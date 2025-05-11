@@ -1,4 +1,6 @@
-from typing import Any
+from typing import Any, Optional
+
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import (Mapped, DeclarativeBase, mapped_column,
                             declared_attr)
 
@@ -21,6 +23,8 @@ class TaskModel(Base):
     name: Mapped[str]
     pomodoro_count: Mapped[int]
     category_id: Mapped[int]
+    user_id: Mapped[int] = mapped_column(ForeignKey("Users.id"),
+                                         nullable=False)
 
 
 class CategoryModel(Base):
@@ -34,6 +38,5 @@ class UserModel(Base):
     __tablename__ = "Users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column(nullable=False)
+    username: Mapped[str] = mapped_column(unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
-    access_token: Mapped[str] = mapped_column(nullable=False)

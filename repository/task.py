@@ -25,11 +25,25 @@ class TaskRepository:
 
             return [TaskSchema.model_validate(task) for task in task_models]
 
-    def create_task(self, task: TaskCreateSchema) -> TaskSchema:
+    def get_user_task(self, user_id: int, task_id: int) -> TaskSchema | None:
+        query = (
+            select(TaskModel)
+            .where(
+                TaskModel.id == task_id,
+                TaskModel.user_id == user_id
+            )
+        )
+        with self.db_session as session:
+            task_model: TaskModel = session.execute(query).scalar_one_or_none()
+            return TaskSchema.model_validate(
+                task_model) if task_model else None
+
+    def create_task(self, task: TaskCreateSchema, user_id: int) -> TaskSchema:
         task_model = TaskModel(
             name=task.name,
             pomodoro_count=task.pomodoro_count,
-            category_id=task.category_id
+            category_id=task.category_id,
+            user_id=user_id
         )
         with self.db_session as session:
             session.add(task_model)
@@ -53,13 +67,10 @@ class TaskRepository:
             session.commit()  # Явный коммит для гарантии сохранения изменений
             return TaskSchema.model_validate(updated_task)
 
-    def delete_task(self, task_id: int) -> bool:
+    def delete_task(self, task_id: int, user_id: int) -> None:
+        query = delete(TaskModel).where(
+                TaskModel.id == task_id,
+                TaskModel.user_id == user_id)
         with self.db_session as session:
-            result = session.execute(
-                delete(TaskModel)
-                .where(TaskModel.id == task_id)
-                .returning(TaskModel.id)
-            )
-            deleted_id = result.scalar_one_or_none()
+            session.execute(query)
             session.commit()
-            return deleted_id is not None

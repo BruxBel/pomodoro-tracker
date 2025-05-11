@@ -10,6 +10,7 @@ from service.auth import AuthService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+
 @router.post(
     path="/login",
     response_model=UserLoginSchema

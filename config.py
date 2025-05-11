@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASS: str
     DB_NAME: str
+    JWT_SECRET_KEY: str
+    JWT_ENCODE_ALGORITHM: str
+    JWT_EXPIRE_DAYS: int
 
     model_config = SettingsConfigDict(
         env_file=".env",

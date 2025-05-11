@@ -12,12 +12,11 @@ class UserRepository:
 
     def create_user(self,
                     username: str,
-                    password: str,
-                    access_token: str) -> UserModel:
+                    password: str
+                    ) -> UserModel:
         query = insert(UserModel).values(
             username=username,
-            password=password,
-            access_token=access_token
+            password=password
         ).returning(UserModel.id)
         with self.db_session as session:
             user_id: int = session.execute(query).scalar()
