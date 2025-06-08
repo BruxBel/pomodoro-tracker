@@ -2,6 +2,7 @@ from fastapi import security, HTTPException
 from fastapi.params import Depends, Security
 from sqlalchemy.orm import Session
 
+from client import GoogleClient
 from exceptions import TokenExpiredException
 from exceptions.auth import TokenNotCorrectException
 from repository import TaskRepository, TaskCache, UserRepository
@@ -38,9 +39,19 @@ def get_user_repository(db_session: Session = Depends(get_db_session)) \
     return UserRepository(db_session=db_session)
 
 
-def get_auth_service(user_repository: UserRepository =
-                     Depends(get_user_repository)) -> AuthService:
-    return AuthService(user_repository=user_repository, settings=settings)
+def get_google_client() -> GoogleClient:
+    return GoogleClient(settings=settings)
+
+
+def get_auth_service(
+    user_repository: UserRepository = Depends(get_user_repository),
+    google_client: GoogleClient = Depends(get_google_client)
+) -> AuthService:
+    return AuthService(
+        user_repository=user_repository,
+        settings=settings,
+        google_client=google_client
+    )
 
 
 def get_user_service(

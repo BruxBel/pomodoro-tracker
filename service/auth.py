@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta, UTC
-from pydantic_settings import BaseSettings
 
 from jose import jwt, JWTError
 
+from client import GoogleClient
 from db import UserModel
 from exceptions import UserNotFoundException, UserNotCorrectPasswordException, \
     TokenExpiredException
@@ -11,11 +11,21 @@ from exceptions.auth import TokenNotCorrectException
 from repository import UserRepository
 from schemas import UserLoginSchema
 
+from config import Settings
+
 
 @dataclass
 class AuthService:
     user_repository: UserRepository
-    settings: BaseSettings
+    settings: Settings
+    google_client: GoogleClient
+
+    def get_google_redirect_url(self):
+        return self.settings.google_redirect_url
+
+    def google_auth(self, code: str):
+        user_data = self.google_client.get_user_info(code)
+        print("Аутентификация через GOOGLE", user_data)
 
     def login(self, username: str, password: str) -> UserLoginSchema:
         user = self.user_repository.get_user_by_username(username)
