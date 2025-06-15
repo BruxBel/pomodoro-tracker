@@ -3,6 +3,7 @@ from sqlalchemy import insert, select
 
 from dataclasses import dataclass
 from db.models import UserModel
+from schemas import UserCreateSchema
 
 
 @dataclass
@@ -10,14 +11,16 @@ class UserRepository:
     def __init__(self, db_session: Session):
         self.db_session = db_session
 
-    def create_user(self,
-                    username: str,
-                    password: str
+    def get_user_by_email(self, email: str) -> UserModel | None:
+        query = select(UserModel).where(
+            UserModel.email == email)
+        with self.db_session as session:
+            return session.execute(query).scalar_one_or_none()
+
+    def create_user(self, user: UserCreateSchema
                     ) -> UserModel:
-        query = insert(UserModel).values(
-            username=username,
-            password=password
-        ).returning(UserModel.id)
+        query = (insert(UserModel).values(**user.model_dump()).
+                 returning(UserModel.id))
         with self.db_session as session:
             user_id: int = session.execute(query).scalar()
             session.commit()
