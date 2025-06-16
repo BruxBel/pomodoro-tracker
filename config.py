@@ -8,9 +8,17 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASS: str
     DB_NAME: str
+
     JWT_SECRET_KEY: str
     JWT_ENCODE_ALGORITHM: str
     JWT_EXPIRE_DAYS: int
+
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_PROJECT_ID: str
+    GOOGLE_AUTH_URI: str
+    GOOGLE_TOKEN_URI: str
+    GOOGLE_CLIENT_SECRET: str
+    GOOGLE_REDIRECT_URI: str
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -32,6 +40,14 @@ class Settings(BaseSettings):
             f"postgresql+psycopg2://{self.DB_USER}:{self.DB_PASS}"
             f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
         )
+
+    @computed_field
+    @property
+    def google_redirect_url(self) -> str:
+        return (f"{self.GOOGLE_AUTH_URI}?response_type=code"
+                f"&client_id={self.GOOGLE_CLIENT_ID}"
+                f"&redirect_uri={self.GOOGLE_REDIRECT_URI}"
+                f"&scope=openid%20profile%20email&access_type=offline")
 
 
 settings = Settings()

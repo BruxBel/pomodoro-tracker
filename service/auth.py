@@ -1,24 +1,52 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta, UTC
-from pydantic_settings import BaseSettings
 
 from jose import jwt, JWTError
 
+from client import GoogleClient
 from db import UserModel
 from exceptions import UserNotFoundException, UserNotCorrectPasswordException, \
     TokenExpiredException
 from exceptions.auth import TokenNotCorrectException
 from repository import UserRepository
-from schemas import UserLoginSchema
+from schemas import UserLoginSchema, UserCreateSchema
+
+from config import Settings
 
 
 @dataclass
 class AuthService:
     user_repository: UserRepository
-    settings: BaseSettings
+    settings: Settings
+    google_client: GoogleClient
+
+    def get_google_redirect_url(self):
+        return self.settings.google_redirect_url
+
+    def google_auth(self, code: str):
+        user_data = self.google_client.get_user_info(code)
+
+        # user login
+        if user := self.user_repository.get_user_by_email(
+                email=user_data.email):
+            access_token = self.generate_access_token(user_id=user.id)
+            print("user_login")
+            return UserLoginSchema(user_id=user.id,
+                                   access_token=access_token)
+
+        # user create
+        create_user_data = UserCreateSchema(
+            google_access_token=user_data.access_token,
+            email=user_data.email,
+            name=user_data.name
+        )
+        created_user = self.user_repository.create_user(create_user_data)
+        access_token = self.generate_access_token(user_id=created_user.id)
+        return UserLoginSchema(user_id=created_user.id,
+                               access_token=access_token)
 
     def login(self, username: str, password: str) -> UserLoginSchema:
-        user = self.user_repository.get_user_by_username(username)
+        user: UserModel = self.user_repository.get_user_by_username(username)
         self._validate_auth_user(user, password)
         access_token = self.generate_access_token(user_id=user.id)
         return UserLoginSchema(user_id=user.id, access_token=access_token)
