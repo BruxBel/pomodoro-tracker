@@ -14,17 +14,24 @@ class TaskService:
         task = self.task_repository.get_task(task_id=task_id)
         return task
 
-    def get_tasks(self) -> list[TaskSchema]:
-        if tasks := self.task_cache.get_tasks():
-            return tasks
-        else:
-            tasks = self.task_repository.get_tasks()
-            tasks_schema = [TaskSchema.model_validate(task) for task in tasks]
-            self.task_cache.set_tasks(tasks_schema)
-            return tasks
+    async def get_tasks(self) -> list[TaskSchema]:
+        # Пробуем получить из кеша
+        if cached_tasks := await self.task_cache.get_tasks():
+            return cached_tasks
 
-    def create_task(self, body: TaskCreateSchema, user_id: int) -> TaskSchema:
+        # Получаем из репозитория
+        tasks = self.task_repository.get_tasks()
+        tasks_schema = [TaskSchema.model_validate(task) for task in tasks]
+
+        # Кешируем результат
+        await self.task_cache.set_tasks(tasks_schema)
+        return tasks_schema
+
+    async def create_task(self,
+                          body: TaskCreateSchema,
+                          user_id: int) -> TaskSchema:
         task = self.task_repository.create_task(body, user_id)
+        await self.task_cache.add_task(task=task)
         return task
 
     def update_task(self, task_id: int, name: str, user_id: int) -> TaskSchema:

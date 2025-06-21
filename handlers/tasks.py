@@ -30,7 +30,7 @@ async def get_task(
 async def get_tasks(
     task_service: Annotated[TaskService, Depends(get_task_service)]
 ):
-    return task_service.get_tasks()
+    return await task_service.get_tasks()
 
 
 @router.post(path="/", response_model=TaskSchema)
@@ -39,7 +39,7 @@ async def create_task(
     task_service: Annotated[TaskService, Depends(get_task_service)],
     user_id: int = Depends(get_request_user_id)
 ):
-    task = task_service.create_task(body, user_id)
+    task = await task_service.create_task(body, user_id)
     return task
 
 

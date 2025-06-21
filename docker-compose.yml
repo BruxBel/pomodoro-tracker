@@ -20,7 +20,7 @@ services:
     ports:
       - "6379:6379"
 
-  redisinsight:  # Добавляем RedisInsight
+  redisinsight:  # Добавляем RedisInsight URL: redis://default@cache:6379
     image: redis/redisinsight:latest
     restart: always
     ports:

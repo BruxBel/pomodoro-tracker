@@ -1,5 +1,6 @@
 from fastapi import security, HTTPException
 from fastapi.params import Depends, Security
+from redis.asyncio import Redis
 from sqlalchemy.orm import Session
 
 from client import GoogleClient
@@ -8,7 +9,7 @@ from exceptions.auth import TokenNotCorrectException
 from repository import TaskRepository, TaskCache, UserRepository
 from service import TaskService, UserService
 from db import get_db_session
-from cache import get_redis_connection
+from cache import redis_storage
 from service.auth import AuthService
 
 from config import settings
@@ -19,9 +20,13 @@ def get_task_repository(db_session: Session = Depends(get_db_session)) \
     return TaskRepository(db_session=db_session)
 
 
-def get_task_cache_repository() -> TaskCache:
-    redis_connection = get_redis_connection()
-    return TaskCache(redis_connection)
+async def get_redis_connection():
+    return await redis_storage.get_connection()
+
+
+async def get_task_cache_repository(
+        redis_connection: Redis = Depends(get_redis_connection)) -> TaskCache:
+    return TaskCache(redis=redis_connection)
 
 
 def get_task_service(
