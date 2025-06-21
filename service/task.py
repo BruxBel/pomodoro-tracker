@@ -10,6 +10,10 @@ class TaskService:
     task_repository: TaskRepository
     task_cache: TaskCache
 
+    def get_task(self, task_id: int) -> TaskSchema | None:
+        task = self.task_repository.get_task(task_id=task_id)
+        return task
+
     def get_tasks(self) -> list[TaskSchema]:
         if tasks := self.task_cache.get_tasks():
             return tasks

@@ -15,7 +15,7 @@ router = APIRouter(prefix='/tasks', tags=['tasks'])
 @router.get(path="/{task_id}", response_model=TaskSchema)
 async def get_task(
     task_id: int,
-    repo: Annotated[TaskRepository, Depends(get_task_repository)]
+    repo: Annotated[TaskService, Depends(get_task_service)]
 ):
     task = repo.get_task(task_id)
     if task is None:

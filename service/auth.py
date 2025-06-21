@@ -86,5 +86,4 @@ class AuthService:
                                                 tz=UTC)
         if payload_expire < datetime.now(UTC):
             raise TokenExpiredException
-        print(payload['user_id'])
         return payload['user_id']
