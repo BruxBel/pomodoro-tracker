@@ -51,9 +51,10 @@ async def path_task(
     user_id: int = Depends(get_request_user_id)
 ):
     try:
-        task = task_service.update_task(task_id=task_id,
-                                        name=name,
-                                        user_id=user_id)
+        task = await task_service.update_task(
+            task_id=task_id,name=name,
+            user_id=user_id
+        )
         return task
     except TaskNotFoundException as e:
         raise HTTPException(
@@ -69,7 +70,7 @@ async def delete_task(
     user_id: int = Depends(get_request_user_id)
 ):
     try:
-        task_service.delete_task(task_id=task_id, user_id=user_id)
+        await task_service.delete_task(task_id=task_id, user_id=user_id)
     except TaskNotFoundException as e:
         raise HTTPException(
             status_code=404,

@@ -8,17 +8,33 @@ class TaskCache:
         self.redis = redis
 
     async def get_tasks(self) -> list[TaskSchema]:
-        """Асинхронно получает список задач из Redis"""
-        tasks_json = await self.redis.lrange("tasks", 0, -1)
-        return [TaskSchema.model_validate(json.loads(task))
-                for task in tasks_json]
+        """Асинхронно получает все задачи из хеша"""
+        tasks_dict = await self.redis.hgetall("tasks")
+        return [
+            TaskSchema.model_validate_json(task_json)
+            for task_json in tasks_dict.values()
+        ]
 
     async def add_task(self, task: TaskSchema):
         task_json = task.model_dump_json()
-        await self.redis.rpush("tasks", task_json)
+        await self.redis.hset("tasks", str(task.id), task_json)
+
+    async def delete_task(self, task_id: int):
+        """Удаляет задачу из хеша по ID"""
+        await self.redis.hdel("tasks", str(task_id))
+
+    async def update_task(self, task: TaskSchema):
+        task_json = task.model_dump_json()
+        await self.redis.hset("tasks", str(task.id), task_json)
 
     async def set_tasks(self, tasks: list[TaskSchema]):
-        """Асинхронно сохраняет список задач в Redis"""
-        tasks_json = [task.model_dump_json() for task in tasks]
-        await self.redis.delete("tasks")  # Очищаем перед записью
-        await self.redis.rpush("tasks", *tasks_json)
+        """Атомарно заменяет все задачи в хеше 'tasks'"""
+        async with await self.redis.pipeline() as pipe:
+            # Удалить весь хеш
+            pipe.delete("tasks")
+
+            # Добавить новые задачи
+            for task in tasks:
+                pipe.hset("tasks", task.id, task.model_dump_json())
+
+            await pipe.execute()

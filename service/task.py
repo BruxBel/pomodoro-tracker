@@ -10,7 +10,7 @@ class TaskService:
     task_repository: TaskRepository
     task_cache: TaskCache
 
-    def get_task(self, task_id: int) -> TaskSchema | None:
+    async def get_task(self, task_id: int) -> TaskSchema | None:
         task = self.task_repository.get_task(task_id=task_id)
         return task
 
@@ -27,25 +27,34 @@ class TaskService:
         await self.task_cache.set_tasks(tasks_schema)
         return tasks_schema
 
-    async def create_task(self,
-                          body: TaskCreateSchema,
-                          user_id: int) -> TaskSchema:
+    async def create_task(
+            self,
+            body: TaskCreateSchema,
+            user_id: int
+    ) -> TaskSchema:
         task = self.task_repository.create_task(body, user_id)
         await self.task_cache.add_task(task=task)
         return task
 
-    def update_task(self, task_id: int, name: str, user_id: int) -> TaskSchema:
+    async def update_task(
+            self,
+            task_id: int,
+            name: str,
+            user_id: int
+    ) -> TaskSchema:
         task = self.task_repository.get_user_task(user_id=user_id,
                                                   task_id=task_id)
         if not task:
             raise TaskNotFoundException
         updated_task = self.task_repository.update_task(task_id=task_id,
                                                         name=name)
+        await self.task_cache.update_task(task=updated_task)
         return updated_task
 
-    def delete_task(self, task_id: int, user_id: int) -> None:
+    async def delete_task(self, task_id: int, user_id: int) -> None:
         task = self.task_repository.get_user_task(user_id=user_id,
                                                   task_id=task_id)
         if not task:
             raise TaskNotFoundException
+        await self.task_cache.delete_task(task_id=task_id)
         self.task_repository.delete_task(task_id=task_id, user_id=user_id)
