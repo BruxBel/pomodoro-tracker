@@ -15,15 +15,12 @@ async def lifespan(app: FastAPI):
     - Инициализирует ресурсы при старте
     - Освобождает ресурсы при завершении
     """
-    # Инициализация Redis
     await redis_storage.init()
     yield  # Здесь приложение работает
-    # Очистка ресурсов
     await redis_storage.close()
 
 app = FastAPI(lifespan=lifespan)
 
-# Должно быть ДО подключения роутеров
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -32,7 +29,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Подключаем роутеры
 for router in routers:
     app.include_router(router)
-

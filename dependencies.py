@@ -1,6 +1,7 @@
 from fastapi import security, HTTPException
 from fastapi.params import Depends, Security
 from redis.asyncio import Redis
+from redis import RedisError
 from sqlalchemy.orm import Session
 
 from client import GoogleClient
@@ -21,7 +22,15 @@ def get_task_repository(db_session: Session = Depends(get_db_session)) \
 
 
 async def get_redis_connection():
-    return await redis_storage.get_connection()
+    try:
+        conn = await redis_storage.get_connection()
+        yield conn
+    except RedisError as e:
+        # logger.error(f"Redis connection error: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Redis connection error"
+        )
 
 
 async def get_task_cache_repository(

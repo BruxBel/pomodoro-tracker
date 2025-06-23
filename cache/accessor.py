@@ -1,5 +1,6 @@
 import os
 from redis.asyncio import Redis, ConnectionPool
+from redis import ConnectionError, TimeoutError
 from typing import Optional
 
 
@@ -24,11 +25,17 @@ class RedisStorage:
         self._redis = Redis(connection_pool=self._pool)
 
     async def get_connection(self) -> Redis:
-        """Возвращает асинхронный клиент Redis."""
+        """Возвращает асинхронный клиент Redis с обработкой ошибок."""
         if self._redis is None:
-            raise RuntimeError("Redis не инициализирован. "
-                               "Вызовите `init()` сначала.")
-        return self._redis
+            raise RuntimeError(
+                "Redis не инициализирован. Вызовите `init()` сначала."
+            )
+        try:
+            await self._redis.ping()
+            return self._redis
+        except (ConnectionError, TimeoutError) as e:
+            # logger.error(f"Redis connection error: {e}")
+            raise RuntimeError("Ошибка подключения к Redis") from e
 
     async def close(self) -> None:
         """Закрывает пул подключений Redis."""
