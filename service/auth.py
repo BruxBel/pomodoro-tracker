@@ -23,8 +23,8 @@ class AuthService:
     def get_google_redirect_url(self):
         return self.settings.google_redirect_url
 
-    def google_auth(self, code: str):
-        user_data = self.google_client.get_user_info(code)
+    async def google_auth(self, code: str):
+        user_data = await self.google_client.get_user_info(code)
 
         # user login
         if user := self.user_repository.get_user_by_email(

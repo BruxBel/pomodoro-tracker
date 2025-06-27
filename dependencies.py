@@ -1,8 +1,6 @@
-from contextlib import asynccontextmanager
-
 from fastapi import security, HTTPException, Request
 from fastapi.params import Depends, Security
-from redis.asyncio import Redis
+
 from sqlalchemy.orm import Session
 
 from client import GoogleClient
@@ -17,7 +15,6 @@ from cache import RedisStorage
 from service.auth import AuthService
 
 from config import settings
-from typing import AsyncIterator
 
 
 def get_task_repository(db_session: Session = Depends(get_db_session)) \
