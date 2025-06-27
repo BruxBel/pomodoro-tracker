@@ -30,7 +30,6 @@ class AuthService:
         if user := self.user_repository.get_user_by_email(
                 email=user_data.email):
             access_token = self.generate_access_token(user_id=user.id)
-            print("user_login")
             return UserLoginSchema(user_id=user.id,
                                    access_token=access_token)
 

@@ -4,19 +4,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from handlers import routers
-from cache import redis_storage
+from cache import RedisStorage
+
+from config import settings
 
 
 # Должен быть определен ДО создания FastAPI приложения
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Управляет жизненным циклом приложения:
-    - Инициализирует ресурсы при старте
-    - Освобождает ресурсы при завершении
-    """
+    redis_storage = RedisStorage(settings=settings)
     await redis_storage.init()
+    app.state.redis_storage = redis_storage  # type: ignore[attr-defined]
+
     yield  # Здесь приложение работает
+
     await redis_storage.close()
 
 app = FastAPI(lifespan=lifespan)

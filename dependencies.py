@@ -1,7 +1,8 @@
-from fastapi import security, HTTPException
+from contextlib import asynccontextmanager
+
+from fastapi import security, HTTPException, Request
 from fastapi.params import Depends, Security
 from redis.asyncio import Redis
-from redis import RedisError
 from sqlalchemy.orm import Session
 
 from client import GoogleClient
@@ -10,10 +11,13 @@ from exceptions.auth import TokenNotCorrectException
 from repository import TaskRepository, TaskCache, UserRepository
 from service import TaskService, UserService
 from db import get_db_session
-from cache import redis_storage
+from redis import ConnectionError, TimeoutError
+from cache import RedisStorage
+
 from service.auth import AuthService
 
 from config import settings
+from typing import AsyncIterator
 
 
 def get_task_repository(db_session: Session = Depends(get_db_session)) \
@@ -21,26 +25,28 @@ def get_task_repository(db_session: Session = Depends(get_db_session)) \
     return TaskRepository(db_session=db_session)
 
 
-async def get_redis_connection():
+async def get_redis_storage(request: Request) -> RedisStorage:
+
+    redis_storage = getattr(request.app.state, 'redis_storage', None)
+    if not redis_storage:
+        raise HTTPException(500, "Redis storage not initialized")
+
     try:
-        conn = await redis_storage.get_connection()
-        yield conn
-    except RedisError as e:
-        # logger.error(f"Redis connection error: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail="Redis connection error"
-        )
+        async with redis_storage.connection() as conn:
+            await conn.ping()
+        return redis_storage
+    except (ConnectionError, TimeoutError) as e:
+        raise HTTPException(503, "Redis service unavailable") from e
 
 
-async def get_task_cache_repository(
-        redis_connection: Redis = Depends(get_redis_connection)) -> TaskCache:
-    return TaskCache(redis=redis_connection)
+async def get_task_cache(
+        redis_storage: RedisStorage = Depends(get_redis_storage)) -> TaskCache:
+    return TaskCache(redis_storage=redis_storage)
 
 
 def get_task_service(
         task_repository: TaskRepository = Depends(get_task_repository),
-        task_cache: TaskCache = Depends(get_task_cache_repository)
+        task_cache: TaskCache = Depends(get_task_cache)
 ) -> TaskService:
     return TaskService(
         task_repository=task_repository,
