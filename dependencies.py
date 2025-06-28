@@ -1,7 +1,7 @@
 from fastapi import security, HTTPException, Request
 from fastapi.params import Depends, Security
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from client import GoogleClient
 from exceptions import TokenExpiredException
@@ -17,8 +17,9 @@ from service.auth import AuthService
 from config import settings
 
 
-def get_task_repository(db_session: Session = Depends(get_db_session)) \
-        -> TaskRepository:
+async def get_task_repository(
+        db_session: AsyncSession = Depends(get_db_session)
+) -> TaskRepository:
     return TaskRepository(db_session=db_session)
 
 
@@ -41,7 +42,7 @@ async def get_task_cache(
     return TaskCache(redis_storage=redis_storage)
 
 
-def get_task_service(
+async def get_task_service(
         task_repository: TaskRepository = Depends(get_task_repository),
         task_cache: TaskCache = Depends(get_task_cache)
 ) -> TaskService:
@@ -51,16 +52,16 @@ def get_task_service(
     )
 
 
-def get_user_repository(db_session: Session = Depends(get_db_session)) \
+async def get_user_repository(db_session: AsyncSession = Depends(get_db_session)) \
         -> UserRepository:
     return UserRepository(db_session=db_session)
 
 
-def get_google_client() -> GoogleClient:
+async def get_google_client() -> GoogleClient:
     return GoogleClient(settings=settings)
 
 
-def get_auth_service(
+async def get_auth_service(
     user_repository: UserRepository = Depends(get_user_repository),
     google_client: GoogleClient = Depends(get_google_client)
 ) -> AuthService:
@@ -71,7 +72,7 @@ def get_auth_service(
     )
 
 
-def get_user_service(
+async def get_user_service(
     user_repository: UserRepository = Depends(get_user_repository),
     auth_service: AuthService = Depends(get_auth_service)
 ) -> UserService:
@@ -82,7 +83,7 @@ def get_user_service(
 reusable_auth2 = security.HTTPBearer()
 
 
-def get_request_user_id(
+async def get_request_user_id(
     auth_service: AuthService = Depends(get_auth_service),
     token: security.http.HTTPAuthorizationCredentials =
     Security(reusable_auth2)

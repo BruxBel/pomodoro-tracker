@@ -17,7 +17,7 @@ async def get_task(
     task_id: int,
     repo: Annotated[TaskService, Depends(get_task_service)]
 ):
-    task = repo.get_task(task_id)
+    task = await repo.get_task(task_id)
     if task is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
