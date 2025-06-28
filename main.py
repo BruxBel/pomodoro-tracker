@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from contextlib import asynccontextmanager
 
+from db import async_engine
 from handlers import routers
 from cache import RedisStorage
 
@@ -17,6 +18,8 @@ async def lifespan(app: FastAPI):
     app.state.redis_storage = redis_storage  # type: ignore[attr-defined]
 
     yield  # Здесь приложение работает
+
+    await async_engine.dispose()
 
     await redis_storage.close()
 
