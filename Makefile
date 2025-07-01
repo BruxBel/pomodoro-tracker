@@ -6,6 +6,9 @@ PORT ?= 8000
 run: ## Run the application using uvicorn with provided arguments or defaults
 	uvicorn main:app --host $(HOST) --port $(PORT)
 
+run-gunicorn:
+	gunicorn app.main:app -c config/gunicorn.conf.py
+
 install: ## Install a dependency using poetry
 	@echo "Installing dependency $(LIBRARY)"
 	poetry add $(LIBRARY)
