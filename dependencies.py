@@ -3,6 +3,8 @@ from fastapi.params import Depends, Security
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from httpx import AsyncClient
+
 from client import GoogleClient
 from exceptions import TokenExpiredException
 from exceptions.auth import TokenNotCorrectException
@@ -57,8 +59,14 @@ async def get_user_repository(db_session: AsyncSession = Depends(get_db_session)
     return UserRepository(db_session=db_session)
 
 
-async def get_google_client() -> GoogleClient:
-    return GoogleClient(settings=settings)
+async def get_async_client() -> AsyncClient:
+    return AsyncClient()
+
+
+async def get_google_client(
+        async_client: AsyncClient = Depends(get_async_client)
+) -> GoogleClient:
+    return GoogleClient(settings=settings, async_client=async_client)
 
 
 async def get_auth_service(
