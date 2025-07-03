@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from httpx import AsyncClient
-from config import Settings
+from src.infrastructure.config import Settings
 from schemas import GoogleUserData
 
 

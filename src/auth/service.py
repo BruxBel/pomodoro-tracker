@@ -3,15 +3,15 @@ from datetime import datetime, timedelta, UTC
 
 from jose import jwt, JWTError
 
-from client import GoogleClient
-from db import UserModel
+from src.auth.client import GoogleClient
+from src.infrastructure.db import UserModel
 from exceptions import UserNotFoundException, UserNotCorrectPasswordException, \
     TokenExpiredException
 from exceptions.auth import TokenNotCorrectException
 from repository import UserRepository
 from schemas import UserLoginSchema, UserCreateSchema
 
-from config import Settings
+from src.infrastructure.config import Settings
 
 
 @dataclass
