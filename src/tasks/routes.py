@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, status, HTTPException
 
-from exceptions import TaskNotFoundException
+from src.tasks.exceptions import TaskNotFoundException
+from src.tasks.service import TaskService
+from src.tasks.schemas import TaskSchema, TaskCreateSchema
+from src.dependencies import get_task_service, get_request_user_id
 
-from service import TaskService
-from schemas import TaskSchema, TaskCreateSchema
-from dependencies import get_task_service, get_request_user_id
 from typing import Annotated
 
 

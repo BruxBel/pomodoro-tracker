@@ -3,11 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from contextlib import asynccontextmanager
 
-from db import async_engine
-from handlers import routers
-from cache import RedisStorage
+from src.infrastructure.db import async_engine
+from src.infrastructure.cache import RedisStorage
+from src.infrastructure.config import settings
 
-from config import settings
+from src.auth.routes import router as auth_router
+from src.users.routes import router as users_router
+from src.tasks.routes import router as tasks_router
 
 
 # Должен быть определен ДО создания FastAPI приложения
@@ -33,5 +35,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for router in routers:
-    app.include_router(router)
+
+app.include_router(auth_router)
+app.include_router(users_router)
+app.include_router(tasks_router)

@@ -3,20 +3,22 @@ from fastapi.params import Depends, Security
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from httpx import AsyncClient
-
-from client import GoogleClient
-from exceptions import TokenExpiredException
-from exceptions.auth import TokenNotCorrectException
-from repository import TaskRepository, TaskCache, UserRepository
-from service import TaskService, UserService
-from db import get_db_session
 from redis import ConnectionError, TimeoutError
-from cache import RedisStorage
 
-from service.auth import AuthService
+from src.auth.client import GoogleClient
+from src.auth.exceptions import TokenExpiredException, TokenNotCorrectException
+from src.auth.service import AuthService
 
-from config import settings
+from src.tasks.repository import TaskRepository
+from src.tasks.cache_repository import TaskCache
+from src.tasks.service import TaskService
+
+from src.users.repository import UserRepository
+from src.users.service import UserService
+
+from src.infrastructure.db import get_db_session
+from src.infrastructure.cache import RedisStorage
+from src.infrastructure.config import settings
 
 
 async def get_task_repository(
@@ -59,14 +61,8 @@ async def get_user_repository(db_session: AsyncSession = Depends(get_db_session)
     return UserRepository(db_session=db_session)
 
 
-async def get_async_client() -> AsyncClient:
-    return AsyncClient()
-
-
-async def get_google_client(
-        async_client: AsyncClient = Depends(get_async_client)
-) -> GoogleClient:
-    return GoogleClient(settings=settings, async_client=async_client)
+async def get_google_client() -> GoogleClient:
+    return GoogleClient(settings=settings)
 
 
 async def get_auth_service(

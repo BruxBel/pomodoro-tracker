@@ -5,11 +5,11 @@ from jose import jwt, JWTError
 
 from src.auth.client import GoogleClient
 from src.infrastructure.db import UserModel
-from exceptions import UserNotFoundException, UserNotCorrectPasswordException, \
-    TokenExpiredException
-from exceptions.auth import TokenNotCorrectException
-from repository import UserRepository
-from schemas import UserLoginSchema, UserCreateSchema
+from src.users.exceptions import (UserNotFoundException,
+                                  UserNotCorrectPasswordException)
+from src.auth.exceptions import TokenExpiredException, TokenNotCorrectException
+from src.users.repository import UserRepository
+from src.users.schemas import UserLoginSchema, UserCreateSchema
 
 from src.infrastructure.config import Settings
 

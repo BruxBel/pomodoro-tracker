@@ -1,5 +1,5 @@
-from schemas import TaskSchema
-from cache import RedisStorage
+from src.tasks.schemas import TaskSchema
+from src.infrastructure.cache import RedisStorage
 
 
 class TaskCache:

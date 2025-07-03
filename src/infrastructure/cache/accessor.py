@@ -4,7 +4,7 @@ from redis.asyncio import Redis, ConnectionPool
 from redis import ConnectionError, TimeoutError, RedisError
 from typing import Optional, AsyncIterator
 
-from config import Settings
+from src.infrastructure.config import Settings
 from dataclasses import dataclass
 
 

@@ -5,8 +5,8 @@ import asyncio
 
 from alembic import context
 
-from db.models import Base
-from config import settings
+from src.infrastructure.db import Base
+from src.infrastructure.config import settings
 
 SQLALCHEMY_DATABASE_URL = settings.db_url_asyncpg
 print("Using DB URL:", SQLALCHEMY_DATABASE_URL)

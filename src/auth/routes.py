@@ -4,10 +4,11 @@ from fastapi import APIRouter, HTTPException
 from fastapi.params import Depends
 from fastapi.responses import RedirectResponse
 
-from dependencies import get_auth_service
-from exceptions import UserNotFoundException, UserNotCorrectPasswordException
-from schemas import UserLoginSchema, UserCreateSchema
-from service import AuthService
+from src.dependencies import get_auth_service
+from src.users.exceptions import (UserNotFoundException,
+                                  UserNotCorrectPasswordException)
+from src.users.schemas import UserLoginSchema, UserCreateSchema
+from src.auth.service import AuthService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -21,7 +22,7 @@ async def login(
     auth_service: Annotated[AuthService, Depends(get_auth_service)]
 ):
     try:
-        return auth_service.login(body.username, body.password)
+        return await auth_service.login(body.username, body.password)
     except UserNotFoundException as e:
         raise HTTPException(
             status_code=404,

@@ -1,3 +1,3 @@
-from cache.accessor import RedisStorage
+from src.infrastructure.cache.accessor import RedisStorage
 
 __all__ = ["RedisStorage"]
