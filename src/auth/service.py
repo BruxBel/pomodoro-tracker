@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, UTC
 from jose import jwt, JWTError
 
 from src.auth.client import GoogleClient
-from src.infrastructure.db import UserModel
+from src.users.models import UserModel
 from src.users.exceptions import (UserNotFoundException,
                                   UserNotCorrectPasswordException)
 from src.auth.exceptions import TokenExpiredException, TokenNotCorrectException

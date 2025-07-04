@@ -5,11 +5,12 @@ import asyncio
 
 from alembic import context
 
-from src.infrastructure.db import Base
+from src.tasks.models import *  # noqa
+from src.users.models import *  # noqa
+
 from src.infrastructure.config import settings
 
 SQLALCHEMY_DATABASE_URL = settings.db_url_asyncpg
-print("Using DB URL:", SQLALCHEMY_DATABASE_URL)
 
 context.config.set_main_option("sqlalchemy.url", SQLALCHEMY_DATABASE_URL)
 
