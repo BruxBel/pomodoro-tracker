@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class GoogleUserData(BaseModel):
-    sub: int
+    id: int
     name: str
     access_token: str
     email: str

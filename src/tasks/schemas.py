@@ -1,4 +1,4 @@
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, ConfigDict, model_validator
 
 
 # Схема для создания задачи (без id)
@@ -22,5 +22,4 @@ class TaskSchema(BaseModel):
     category_id: int
     user_id: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
