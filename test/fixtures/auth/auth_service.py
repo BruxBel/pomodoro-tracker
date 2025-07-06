@@ -1,11 +1,11 @@
 import pytest
 
-from src.infrastructure.config import settings
+
 from src.auth.service import AuthService
 
 
 @pytest.fixture
-def auth_service(user_repository, google_client):
+def auth_service(settings, user_repository, google_client):
     return AuthService(
         user_repository=user_repository,
         settings=settings,

@@ -2,13 +2,14 @@ import pytest
 
 from dataclasses import dataclass
 
-from src.infrastructure.config import settings, Settings
+
 from src.auth.schemas import GoogleUserData
 
 
 import factory.fuzzy
 from faker import Faker
-from pytest_factoryboy import register
+
+from src.infrastructure.config import Settings
 
 fake = Faker()
 
@@ -32,7 +33,7 @@ class FakeGoogleClient:
 
 
 @pytest.fixture
-def google_client():
+def google_client(settings):
     return FakeGoogleClient(settings=settings)
 
 

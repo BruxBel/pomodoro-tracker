@@ -2,12 +2,13 @@ import pytest
 from jose import jwt
 
 from src.auth.service import AuthService
-from src.infrastructure.config import settings
+from src.infrastructure.config import Settings
 
 
 @pytest.mark.asyncio
 async def test_get_google_redirect_url(
-        auth_service: AuthService,
+        settings: Settings,
+        auth_service: AuthService
 ):
     settings_google_redirect_url = settings.google_redirect_url
     auth_service_google_redirect_url = auth_service.get_google_redirect_url()
@@ -16,6 +17,7 @@ async def test_get_google_redirect_url(
 
 @pytest.mark.asyncio
 async def test_generate_access_token(
+        settings: Settings,
         auth_service: AuthService
 ):
     user_id = "1"
