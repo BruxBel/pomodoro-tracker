@@ -10,7 +10,7 @@ from src.infrastructure.config import settings
 
 async_engine = create_async_engine(
     settings.db_url_asyncpg_test,
-    echo=True,
+    echo=False,
     future=True,
     pool_pre_ping=True
 )
@@ -18,15 +18,13 @@ async_engine = create_async_engine(
 
 AsyncSessionFactory = async_sessionmaker(
     bind=async_engine,
-    class_=AsyncSession,
     expire_on_commit=False,
-    autoflush=False,
-    autocommit=False
+    autoflush=False
 )
 
 
-@pytest_asyncio.fixture(scope="session", autouse=True)
-async def init_models(event_loop):
+@pytest_asyncio.fixture(autouse=True)
+async def init_models():
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
@@ -36,6 +34,6 @@ async def init_models(event_loop):
 
 
 @pytest_asyncio.fixture()
-async def get_db_session() -> AsyncSession:
-    """Асинхронный генератор сессий для Dependency Injection"""
+async def get_db_session():
+    """Фикстура с явным управлением контекстом сессии"""
     return AsyncSessionFactory()

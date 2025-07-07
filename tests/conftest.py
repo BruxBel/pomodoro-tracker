@@ -10,11 +10,3 @@ pytest_plugins = [
     "tests.fixtures.infrastructure.db",
     # "test.fixtures.users.user_model"
 ]
-
-
-@pytest.fixture(scope="session")
-def event_loop():
-    policy = asyncio.get_event_loop_policy()
-    loop = policy.new_event_loop()
-    yield loop
-    loop.close()

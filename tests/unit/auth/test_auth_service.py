@@ -7,21 +7,21 @@ from src.infrastructure.config import Settings
 @pytest.mark.asyncio
 async def test_get_google_redirect_url(
         settings: Settings,
-        auth_service: AuthService
+        mock_auth_service: AuthService
 ):
     settings_google_redirect_url = settings.google_redirect_url
-    auth_service_google_redirect_url = auth_service.\
+    auth_service_google_redirect_url = mock_auth_service.\
         get_google_redirect_url()
     assert settings_google_redirect_url == auth_service_google_redirect_url
 
 
 @pytest.mark.asyncio
 async def test_generate_access_token(
-        auth_service: AuthService
+        mock_auth_service: AuthService
 ):
     user_id = 1
-    access_token = auth_service.generate_access_token(user_id=user_id)
-    decoded_user_id = auth_service.get_user_id_from_access_token(
+    access_token = mock_auth_service.generate_access_token(user_id=user_id)
+    decoded_user_id = mock_auth_service.get_user_id_from_access_token(
         access_token=access_token
     )
 

@@ -1,5 +1,5 @@
 import pytest
-
+import pytest_asyncio
 
 from src.auth.service import AuthService
 from src.users.repository import UserRepository
@@ -14,8 +14,9 @@ def mock_auth_service(settings, fake_user_repository, google_client):
     )
 
 
-@pytest.fixture
-def auth_service(settings, get_db_session, google_client):
+@pytest_asyncio.fixture
+async def auth_service(settings, get_db_session, google_client):
+    # Создаем сервис с сессией, но не управляем сессией здесь
     return AuthService(
         user_repository=UserRepository(db_session=get_db_session),
         settings=settings,
