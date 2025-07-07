@@ -1,3 +1,5 @@
+from os import getenv
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import computed_field
 
@@ -8,6 +10,8 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASS: str
     DB_NAME: str
+
+    DB_TEST_NAME: str
 
     REDIS_HOST: str
     REDIS_PORT: int
@@ -26,7 +30,7 @@ class Settings(BaseSettings):
     GOOGLE_REDIRECT_URI: str
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=getenv("ENV_FILE", ".env"),
         env_file_encoding="utf-8",
     )
 
@@ -47,6 +51,15 @@ class Settings(BaseSettings):
             f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}"
             f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
         )
+
+    @computed_field
+    @property
+    def db_url_asyncpg_test(self) -> str:
+        return (
+            f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}"
+            f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_TEST_NAME}"
+        )
+
 
     @computed_field
     @property

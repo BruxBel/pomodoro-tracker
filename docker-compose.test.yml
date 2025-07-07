@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  db-test:
+    image: postgres:17-alpine
+    restart: always
+    shm_size: '128mb'
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_TEST_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  cache-test:
+    image: redis:7.4.2-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:

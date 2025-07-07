@@ -1,5 +1,4 @@
 import pytest
-
 from src.infrastructure.config import Settings
 
 

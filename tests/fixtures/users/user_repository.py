@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import pytest
 
 from src.users.schemas import UserCreateSchema
-from test.fixtures.users.user_model import UserModelFactory
+from tests.fixtures.users.user_model import UserModelFactory
 
 
 @dataclass
@@ -17,5 +17,5 @@ class FakeUserRepository:
 
 
 @pytest.fixture
-def user_repository():
+def fake_user_repository():
     return FakeUserRepository()
